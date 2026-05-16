@@ -6,6 +6,12 @@ It scans a local repository for risky agent automation patterns, then generates 
 
 > As AI agents start touching real repositories, who audits the agents?
 
+## Live Demo
+
+Try the deployed dashboard:
+
+https://hermes-guard.vercel.app
+
 ## Why This Exists
 
 AI coding agents are moving beyond chat. They can read source code, call tools, run shell commands, write files, open pull requests, and sometimes trigger CI or deployment workflows.
