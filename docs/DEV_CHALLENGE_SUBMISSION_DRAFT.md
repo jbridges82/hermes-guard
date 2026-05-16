@@ -1,29 +1,46 @@
 # I Built an AI Agent Risk Auditor for Agentic Repositories
 
-AI coding agents are moving quickly from "suggest a patch" to "touch the repo." They can read files, run tools, create commits, open pull requests, and sometimes trigger deployment workflows.
+AI coding agents are crossing an important line.
 
-That shift creates a practical question:
+They are no longer just suggesting code in a chat window. In many developer workflows, agents can inspect repositories, run scripts, edit files, open pull requests, and trigger automation. That is powerful, but it creates a new security question:
 
 **As AI agents start touching real repositories, who audits the agents?**
 
-Hermes Guard is my answer for this challenge. It is a local-first repo risk auditor for agentic repositories. The MVP scans a repository for risky AI-agent automation patterns and generates evidence-backed Markdown and JSON reports.
+That question led me to build **Hermes Guard**, a local-first risk auditor for agentic repositories.
 
-## The Problem
+Hermes Guard scans a repository for risky AI-agent automation patterns and produces evidence-backed Markdown and JSON reports. It also includes a polished React dashboard for reviewing the scan results.
 
-Most teams already know how to review application code. Fewer teams have a process for reviewing the automation layer around AI agents:
+## The Problem: Repos Now Contain Agent Behavior
 
-- What can the agent read?
-- What can the agent execute?
-- Can it push, merge, or deploy?
-- Are secrets exposed to prompts or logs?
-- Are tool permissions scoped or wildcarded?
-- Can repository text inject instructions into the agent?
+Traditional code review focuses on application behavior. Reviewers ask whether a function is correct, whether a dependency is safe, or whether a service handles data properly.
 
-These risks often hide in workflow files, prompt files, scripts, and agent policy docs rather than the product code itself.
+Agentic repositories add another layer.
+
+The risky behavior may not live in product code at all. It may live in:
+
+- `AGENTS.md` instructions.
+- Prompt files.
+- GitHub Actions workflows.
+- MCP server and tool permission config.
+- Shell scripts that run agent-generated commands.
+- Example environment files that normalize unsafe secret handling.
+
+That means a repository can pass normal review while still allowing an AI agent to run too broadly.
+
+For example:
+
+```yaml
+approval_mode: none
+allow: "*"
+```
+
+Those two lines are not an application bug. They are an automation risk. They tell a reviewer something important about the repo's agent posture.
 
 ## What Hermes Guard Does
 
-Hermes Guard scans local files and applies deterministic rules for patterns such as:
+Hermes Guard is intentionally practical. It does not try to be a black-box AI judge. It uses deterministic local rules and shows evidence for every finding.
+
+The MVP detects patterns such as:
 
 - Fake or exposed API-key-like strings.
 - `ignore previous instructions` prompt-injection text.
@@ -31,32 +48,100 @@ Hermes Guard scans local files and applies deterministic rules for patterns such
 - `approval_mode: none`.
 - `allow: "*"` wildcard access.
 - `curl` or `wget` piped into a shell.
-- GitHub Actions secrets used by broad agent automation.
-- Overly broad MCP or tool permission configuration.
+- GitHub Actions secrets used with broad agent automation.
+- MCP or tool permission config that appears overly broad.
 
-Every finding includes a file path, line number, evidence snippet, why it matters, and a recommended fix.
+Each finding includes:
 
-## Why Local-First Matters
+- ID and title.
+- Severity.
+- File path and line number.
+- Evidence snippet.
+- Why it matters.
+- Recommended fix.
 
-The MVP does not require a paid API and does not send repository contents anywhere. It reads local files, writes local reports, and keeps the logic transparent. That makes it safe to try on sensitive repositories before connecting any optional runtime integration.
+That evidence-first design matters. A reviewer should not have to trust the tool. They should be able to verify the finding immediately.
 
-## Hermes Agent Integration
+## Why Local-First Was The Right MVP Choice
 
-Hermes Guard is inspired by Hermes Agent, but it does not claim Hermes is running. The integration is intentionally modular through `scanner/hermesAdapter.js`.
+The safest way to audit a repository is to avoid sending it anywhere.
 
-Today, the adapter is a stub. Tomorrow, it can connect to a real Hermes runtime to enrich findings, map risks to policies, or observe agent execution context.
+Hermes Guard runs locally. The scanner reads files, applies rules, and writes local reports. It does not execute scripts from the scanned repository. It does not require paid APIs. It does not require a hosted backend.
 
-## The Demo
+For a security-focused developer tool, that local-first posture is not just convenient. It is part of the product promise.
 
-The project includes a synthetic `demo-repo` with safe fake content. Running the scanner produces:
+## The Dashboard
+
+The React/Vite dashboard presents the scan as a security review workspace:
+
+- A left panel for the scanned repo tree.
+- A center panel for Hermes-style activity.
+- A main panel for risk posture, severity counts, and finding cards.
+
+The UI is deliberately serious rather than theatrical. The goal is not to look like a movie terminal. The goal is to help a developer or reviewer quickly understand the repo's agent risk posture.
+
+## Hermes-Inspired, Hermes-Ready
+
+Hermes Guard is inspired by Hermes Agent, but the MVP does not claim Hermes Agent is running.
+
+The integration is modular through:
+
+```text
+scanner/hermesAdapter.js
+```
+
+Right now, that adapter clearly reports stub mode:
+
+```text
+Hermes Agent runtime is not connected. Hermes Guard is running deterministic local rules only.
+```
+
+That keeps the project honest. If a real Hermes runtime is available later, the adapter can connect to it without changing the scanner and reporting pipeline.
+
+## How The Demo Works
+
+The project includes a safe synthetic `demo-repo` with risky-looking agent automation patterns. The fake keys are clearly marked as fake, and the scanner never executes the demo scripts.
+
+The basic flow is:
+
+```powershell
+npm install
+npm run scan
+npm run dev
+```
+
+The scan produces:
 
 - `reports/hermes-guard-report.json`
 - `reports/hermes-guard-report.md`
 
-The React dashboard then presents the same style of data in a dark, professional security-review interface.
+The dashboard then shows the risk summary and representative findings.
+
+## What I Learned
+
+The interesting part of this project was not writing regular expressions. It was deciding what an "agentic repository" actually means.
+
+A repo is no longer just source code. It can also be a set of permissions, prompts, tools, and automation pathways. Once an agent can act on that repo, those files become part of the system's security boundary.
+
+That boundary needs review.
 
 ## What I Would Build Next
 
-The next iteration would add SARIF output, pull-request diff scanning, suppressions with reviewer justification, local API wiring for live dashboard scans, and real Hermes runtime integration once available.
+The next version of Hermes Guard would add:
 
-The core idea remains the same: make agentic automation auditable before it becomes invisible infrastructure.
+- SARIF output for GitHub code scanning.
+- Pull request diff scanning.
+- Rule suppressions with reviewer justification.
+- Live dashboard wiring to the local scanner output.
+- Policy profiles for strict, balanced, and advisory scans.
+- Real Hermes Agent integration through the existing adapter once a runtime is available.
+
+## Closing
+
+AI agents make repositories more capable. They also make repositories more complex.
+
+Hermes Guard is a small, local-first step toward making that complexity auditable. It gives developers a way to ask, before the agent acts:
+
+**What is this repository allowing an AI agent to do?**
+
+That is the question I think every agentic repo will need to answer.
