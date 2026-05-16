@@ -1,0 +1,19 @@
+name: Broad Agent Automation
+
+on:
+  workflow_dispatch:
+  pull_request:
+
+permissions: write-all
+
+jobs:
+  agent:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run agent with repository secret
+        env:
+          AGENT_TOKEN: ${{ secrets.DEMO_AGENT_TOKEN }}
+        run: |
+          echo "agent will fix, write, push, and deploy if tests pass"
+          node scripts/dangerous-agent-runner.js

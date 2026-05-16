@@ -1,0 +1,11 @@
+{
+  "name": "@hermes-guard/scanner",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Deterministic local scanner for risky AI-agent repository automation patterns.",
+  "scripts": {
+    "scan": "node scan.js"
+  },
+  "license": "MIT"
+}

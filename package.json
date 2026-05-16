@@ -1,0 +1,23 @@
+{
+  "name": "hermes-guard",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local-first agentic repository risk auditor for AI-agent automation patterns.",
+  "scripts": {
+    "scan": "npm --prefix scanner run scan",
+    "dev": "npm --prefix app run dev",
+    "build": "npm --prefix app run build"
+  },
+  "workspaces": [
+    "app",
+    "scanner"
+  ],
+  "keywords": [
+    "ai-agent",
+    "repo-audit",
+    "security",
+    "vite",
+    "dev-challenge"
+  ],
+  "license": "MIT"
+}
