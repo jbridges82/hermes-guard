@@ -70,6 +70,14 @@ Hermes Guard runs locally. The scanner reads files, applies rules, and writes lo
 
 For a security-focused developer tool, that local-first posture is not just convenient. It is part of the product promise.
 
+## Safe By Design
+
+For the challenge submission, I wanted the demo to be safe by default, not just useful.
+
+Hermes Guard never executes repository code. The scanner is read-only: it walks the local file tree, reads text files, applies deterministic rules, and writes Markdown and JSON reports. The architecture is local-first, so the repository does not need to be uploaded to a cloud service to get value from the MVP.
+
+There is also no required cloud dependency. The dashboard runs locally, the scanner runs locally, and the reports are generated locally. The included demo repository contains intentionally fake credentials only, clearly marked as fake placeholders so the project can demonstrate secret-shaped findings without exposing real secrets.
+
 ## The Dashboard
 
 The React/Vite dashboard presents the scan as a security review workspace:

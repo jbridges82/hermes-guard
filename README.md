@@ -117,11 +117,15 @@ Example finding:
 }
 ```
 
-## Local-First Safety
+## Safe By Design
 
-The scanner only reads files. It does not execute scripts from the scanned repository.
+Hermes Guard is designed to be safe to run against a repository before any optional agent runtime is connected.
 
-The included `demo-repo` uses safe synthetic content and fake placeholders clearly marked as fake. No paid APIs or external services are required for the MVP.
+- Hermes Guard never executes repository code.
+- The scanner is read-only: it walks files, reads text, applies deterministic rules, and writes reports.
+- The architecture is local-first, so repository contents do not need to leave the developer machine.
+- No cloud dependency is required for the MVP.
+- The included `demo-repo` contains intentionally fake credentials only, clearly marked as fake demo placeholders.
 
 ## Hermes-Ready Adapter
 
